@@ -1,14 +1,21 @@
 from miniDisplayScore import displayScore
 from tm1637 import TM1637
 import time
+from fetchScores import football
+
+matchToWatch = football(league='nfl')
+matchToWatch.readHtmlFile()
 
 display1 = displayScore()
+
 display1.createDevice(portNo='1', bgcolor="red")
 #display1.clearscreen(color="red")
 time.sleep(2)
 
 availablefonts = display1.fonttype()
 print (availablefonts['1'])
+
+'''
 lcddisplay = TM1637(3,2)
 t = time.localtime()
 
@@ -26,7 +33,21 @@ for i in range(1, 10):
     lcddisplay.set_segments([0xff, 0xff, 0xff, 0xff])
     #print(i<<7)
     time.sleep(0.1)
+'''
 
+display1.check_wifi_network()
+matchNumber = str(matchToWatch.getMatchNumber("Green Bay"))
 
 while(1):
-    time.sleep(1)
+    if (matchToWatch.readHtmlFile("Green Bay") == True):
+        display1.print_characters("Score!!!", "FreePixel", 30, 0, 0)
+        time.sleep(2)
+
+    display1.print_characters(matchToWatch.getMatchDetail(matchNumber)['team1'] + "\n" +
+                              str(matchToWatch.getMatchDetail(matchNumber)['score1']), "FreePixel", 30, 0, 0)
+    time.sleep(2)
+    display1.print_characters(matchToWatch.getMatchDetail(matchNumber)['team2'] + "\n" +
+                              str(matchToWatch.getMatchDetail(matchNumber)['score2']), "FreePixel", 30, 0, 0)
+    time.sleep(2)
+    display1.print_characters(matchToWatch.getMatchDetail(matchNumber)['separator'], "FreePixel", 60, 0, 0)
+    time.sleep(2)

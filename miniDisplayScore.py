@@ -2,7 +2,9 @@ from luma.core import cmdline, error
 from PIL import Image, ImageDraw, ImageFont
 from luma.core.render import canvas
 from luma.core.virtual import viewport
-import smbus2
+from subprocess import check_output
+import urllib.request
+#import msvcrt
 
 class displayScore:
 
@@ -36,19 +38,6 @@ class displayScore:
             except error.Error as e:
                 return e
 
-    def lcddisplaytest(self, segment_numbers):
-
-        I2C_COMM1 = 0x40
-        I2C_COMM2 = 0xC0
-        I2C_COMM3 = 0x80
-
-        i2cbus = smbus2.SMBus(1)
-        #a = i2cbus.i2c_rdwr(I2C_COMM1)
-        i2cbus.write_byte(I2C_COMM1,0)
-        #i2cbus.i2c_rdwr(I2C_COMM2)
-        #i2cbus.i2c_rdwr(5)
-        #i2cbus.i2c_rdwr(I2C_COMM3 + 0xf)
-
     def clearscreen(self, color="white"):
 
         background = Image.new("RGBA", self.device.size, color)
@@ -67,10 +56,26 @@ class displayScore:
         # virtual = viewport(self.device, width=self.device.width, height=self.device.height)
 
         with canvas(self.virtual) as draw:
-            draw.text((0, posy), text, font=makefont, fill="blue")
-            draw.text((30, posy+10), text, font=makefont, fill="red")
-            draw.text((60, posy+20), text, font=makefont, fill="green")
+            draw.text((posx, posy), text, font=makefont, fill="blue")
+            #draw.text((30, posy+10), text, font=makefont, fill="red")
+            #draw.text((60, posy+20), text, font=makefont, fill="green")
 
+    def check_wifi_network(self):
+
+        scanoutput = check_output(["iwlist", "wlan0", "scan"])
+
+        try:
+            urllib.request.urlopen('http://www.google.com/')
+        except:
+            print("Error: No internet connection")
+            print("Check available SSID and connect")
+            for line in scanoutput.split():
+                if line.startswith(b'ESSID'):
+                    ssid = line.split(b'"')[1]
+                    print (ssid)
+            return 0
+
+        return 1
 '''
     def display(self, image):
         self._last_image = image.copy()
@@ -84,4 +89,15 @@ class displayScore:
         if self._last_image:
             self.savepoints.append(self._last_image)
             self._last_image = None
+'''
+
+'''class keyboard_input:
+
+    def __init__(self):
+        self.buffer = 'eof'
+        self.is_kbhit = 0
+
+    def key_pressed(self):
+        self.is_kbhit = msvcrt.kbhit()
+        return self.is_kbhit
 '''
