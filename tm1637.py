@@ -78,6 +78,31 @@ class TM1637:
         self.write_byte(self.I2C_COMM3 + self.brightness)
         self.stop()
 
+    def print_numbers(self, timestring):
+        set_dots = 0
+
+        try:
+            if timestring.find(":") != -1:
+                number_1 = self.digit_to_segment[int((timestring.split(":")[0])[:1])]
+                number_2 = self.digit_to_segment[int((timestring.split(":")[0])[1:2])]
+                number_3 = self.digit_to_segment[int((timestring.split(":")[1])[:1])]
+                number_4 = self.digit_to_segment[int((timestring.split(":")[1])[1:2])]
+                set_dots = 1
+
+            else:
+                number_1 = self.digit_to_segment[int(timestring[:1])]
+                number_2 = self.digit_to_segment[int(timestring[1:2])]
+                number_3 = self.digit_to_segment[int(timestring[2:3])]
+                number_4 = self.digit_to_segment[int(timestring[3:4])]
+
+        except:
+            number_1 = self.digit_to_segment[0xD]
+            number_2 = self.digit_to_segment[0xE]
+            number_3 = self.digit_to_segment[0xA]
+            number_4 = self.digit_to_segment[0xD]
+
+        self.set_segments([number_1, (0x80*set_dots + number_2), number_3, number_4])
+
     def start(self):
         GPIO.setup(self.dio, GPIO.OUT)
         self.bit_delay()
