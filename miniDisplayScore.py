@@ -2,6 +2,7 @@ from luma.core import cmdline, error
 from PIL import Image, ImageDraw, ImageFont
 from luma.core.render import canvas
 from luma.core.virtual import viewport
+from luma.core import interface
 from subprocess import check_output
 import urllib.request
 #import msvcrt
@@ -16,7 +17,7 @@ class displayScore:
         self.bus = 'i2c'
         self.portNumber = '0'
 
-    def createDevice(self, type='luma', chip='ssd1331', width='96', height='64',bus='spi', portNo='0', bgcolor="black"):
+    def createDevice(self, type='luma', chip='ssd1331', width='96', height='64',bus='spi', portNo='0', bgcolor="black", reset_pin='25'):
 
         self.resolutionX = width
         self.resolutionY = height
@@ -27,7 +28,7 @@ class displayScore:
 
         if type == 'luma':
             try:
-                args = ('-d' + chip, '--width=' + width, '--height=' + height, '-i' + bus, '--spi-device= '+ portNo)
+                args = ('-d' + chip, '--width=' + width, '--height=' + height, '-i' + bus, '--spi-device= '+ portNo, '--gpio-reset='+ reset_pin)
                 parser = cmdline.create_parser(description='luma.examples arguments')
                 args1 = parser.parse_args(args)
                 self.device = cmdline.create_device(args1)

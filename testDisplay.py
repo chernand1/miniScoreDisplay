@@ -5,13 +5,22 @@ from fetchScores import football
 
 matchToWatch = football(league='nfl')
 matchToWatch.readHtmlFile()
-'''
+
 display1 = displayScore()
-display1.createDevice(portNo='1', bgcolor="red")
-#display1.clearscreen(color="red")
+display2 = displayScore()
+
+display1.createDevice(portNo='0', bgcolor="red", reset_pin='25')
+display2.createDevice(portNo='1', bgcolor="green", reset_pin='22')
+
+display1.clearscreen(color="red")
 time.sleep(2)
 
 
+
+display2.clearscreen(color="green")
+time.sleep(2)
+
+'''
 availablefonts = display1.fonttype()
 print (availablefonts['1'])
 
