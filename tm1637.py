@@ -47,6 +47,7 @@ class TM1637:
         self.clk = clk
         self.dio = dio
         self.brightness = 0x0f
+        self.dots_on = 1
 
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.clk, GPIO.OUT)
@@ -143,35 +144,19 @@ class TM1637:
 
         return
 
-
-def show_ip_address(tm):
-    ipaddr = subprocess.check_output("hostname -I", shell=True, timeout=1).strip().split(b".")
-    for octet in ipaddr:
-        tm.set_segments([0, 0, 0, 0])
-        sleep(0.1)
-        tm.set_segments([tm.digit_to_segment[int(x) & 0xf] for x in octet])
-        sleep(0.9)
-
-
-def show_clock(tm):
-        t = localtime()
-        sleep(1 - time() % 1)
-        d0 = tm.digit_to_segment[t.tm_hour // 10] if t.tm_hour // 10 else 0
-        d1 = tm.digit_to_segment[t.tm_hour % 10]
-        d2 = tm.digit_to_segment[t.tm_min // 10]
-        d3 = tm.digit_to_segment[t.tm_min % 10]
-        tm.set_segments([d0, 0x80 + d1, d2, d3])
-        sleep(.5)
-        tm.set_segments([d0, d1, d2, d3])
+    def show_clock(self):
+            t = localtime()
+            d0 = self.digit_to_segment[t.tm_hour // 10] if t.tm_hour // 10 else 0
+            d1 = self.digit_to_segment[t.tm_hour % 10]
+            d2 = self.digit_to_segment[t.tm_min // 10]
+            d3 = self.digit_to_segment[t.tm_min % 10]
+            self.set_segments([d0, 0x80 * self.dots_on + d1, d2, d3])
+            self.dots_on = (self.dots_on ^ 1) & 1
 
 
 if __name__ == "__main__":
     tm = TM1637(CLK, DIO)
 
-    show_ip_address(tm)
-
-    while True:
-        show_clock(tm)
 
 
 

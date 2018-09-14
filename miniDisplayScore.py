@@ -1,13 +1,16 @@
 from luma.core import cmdline, error
 from PIL import Image, ImageDraw, ImageFont
 from luma.core.render import canvas
-from luma.core.virtual import viewport
-from luma.core import interface
 from subprocess import check_output
 import urllib.request
+from math import floor
+
 #import msvcrt
 
 class displayScore:
+
+    rotate_conversion = {0: '0', 90: '1', 180: '2', 270: '3'}
+    fontsdir = "fonts/"
 
     def __init__(self):
         self.resolutionX = 96
@@ -17,7 +20,7 @@ class displayScore:
         self.bus = 'i2c'
         self.portNumber = '0'
 
-    def createDevice(self, type='luma', chip='ssd1331', width='96', height='64',bus='spi', portNo='0', bgcolor="black", reset_pin='25'):
+    def createDevice(self, type='luma', chip='ssd1331', width='96', height='64',bus='spi', portNo='0', bgcolor="black", reset_pin='25', rotate_screen='2'):
 
         self.resolutionX = width
         self.resolutionY = height
@@ -28,38 +31,58 @@ class displayScore:
 
         if type == 'luma':
             try:
-                args = ('-d' + chip, '--width=' + width, '--height=' + height, '-i' + bus, '--spi-device= '+ portNo, '--gpio-reset='+ reset_pin)
+                args = ('-d' + chip, '--width=' + width, '--height=' + height, '-i' + bus,
+                        '--spi-device= '+ portNo, '--gpio-reset='+ reset_pin, '--rotate='+ self.rotate_conversion[rotate_screen])
                 parser = cmdline.create_parser(description='luma.examples arguments')
                 args1 = parser.parse_args(args)
                 self.device = cmdline.create_device(args1)
-                #self.buffer = Image.new("RGBA", self.device.size, bgcolor)
-                #self.device.display(self.buffer.convert(self.device.mode))
-                self.virtual = viewport(self.device, width=self.device.width, height=self.device.height)
+                self.image = ImageDraw.Draw
+                self.background = Image.new("RGBA", self.device.size, "Black")
                 return 0
             except error.Error as e:
                 return e
 
     def clearscreen(self, color="white"):
 
-        background = Image.new("RGBA", self.device.size, color)
-        self.device.display(background.convert(self.device.mode))
-
+        self.background = Image.new("RGBA", self.device.size, color)
+        #self.device.display(background.convert(self.device.mode))
+        self.device.display(self.background.convert(self.device.mode))
         return 0
 
     def fonttype(self):
         return {'0': "code2000", '1': "FreePixel", '2': "pixelmix"}
 
-    def print_characters(self, text, font, fontsize, posx=0, posy=0):
+    def print_characters(self, text, font, fontsize, posx=0, posy=0, color="White", autosize=1):
 
-        fontsdir = "fonts/"
-        makefont = ImageFont.truetype(fontsdir + font + ".ttf", fontsize)
+        if autosize == 1:
+            fontsize = self.auto_size_text(text, font, fontsize)
 
-        # virtual = viewport(self.device, width=self.device.width, height=self.device.height)
+        makefont = ImageFont.truetype(self.fontsdir + font + ".ttf", fontsize)
+        draw = ImageDraw.Draw(self.background)
+        draw.text((posx, posy), text, font=makefont, fill=color)
 
-        with canvas(self.virtual) as draw:
-            draw.text((posx, posy), text, font=makefont, fill="blue")
-            #draw.text((30, posy+10), text, font=makefont, fill="red")
-            #draw.text((60, posy+20), text, font=makefont, fill="green")
+        self.device.display(self.background.convert(self.device.mode))
+
+    def auto_size_text(self, text, font, fontsize):
+
+        makefont = ImageFont.truetype(self.fontsdir + font + ".ttf", fontsize)
+
+        with canvas(self.device) as draw:
+            w, h = draw.textsize(text, makefont)
+
+        new_font_size_X = fontsize
+        new_font_size_Y = fontsize
+
+        if w > int(self.resolutionX):
+            new_font_size_X = floor(fontsize * ((int(self.resolutionX) - 5) / w))
+        if h > int(self.resolutionY):
+            new_font_size_Y = floor(fontsize * ((int(self.resolutionY) - 5) / h))
+
+        if new_font_size_X > new_font_size_Y:
+            return int(new_font_size_Y)
+        else:
+            return int(new_font_size_X)
+
 
     def check_wifi_network(self):
 
