@@ -100,6 +100,27 @@ class displayScore:
             return 0
 
         return 1
+
+    def download_and_display_graphic(self, urlbase, graphname="", extension="png"):
+        url = urlbase + graphname + "." + extension
+        graph_temp = urllib.request.urlopen(url)
+        graph_data = graph_temp.read()
+
+        img_path = "teamlogos/" + graphname + "." + extension
+        f = open(img_path, "wb+")
+
+        f.write(graph_data)
+
+        self.background = Image.open(img_path)
+        sizeX, sizeY = self.background.size
+
+        # (1, 0, Translate X, 0, 1, Translate Y)
+        self.background = self.background.resize((96, 96), Image.ANTIALIAS) \
+            .transform(self.device.size, Image.AFFINE, (1, 0, -5, 0, 1, 15), Image.BILINEAR) \
+            .convert(self.device.mode)
+
+        self.device.display(self.background.convert(self.device.mode))
+
 '''
     def display(self, image):
         self._last_image = image.copy()

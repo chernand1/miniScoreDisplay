@@ -20,8 +20,8 @@ matchToWatch.listTeams()
 #my_keyboard_reader = keyboard_input()
 
 while(1):
-    print(matchToWatch.getMatchNumber("Green Bay"))
-    print(matchToWatch.getMatchDetail(matchToWatch.getMatchNumber("Green Bay")))
+    print(matchToWatch.getMatchNumber("NY Giants"))
+    print(matchToWatch.getMatchDetail(matchToWatch.getMatchNumber("NY Giants")))
     matchToWatch.readHtmlFile()
     #print("Is key pressed = " + str(my_keyboard_reader.key_pressed))
     time.sleep(5)

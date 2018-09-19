@@ -4,6 +4,7 @@
 import urllib
 import urllib.request
 import re
+import time
 
 #from lxml import html
 
@@ -31,12 +32,63 @@ class sportsClass:
         for key, value in self.matchups.items():
             print(key + ": " + str(value['team1']) + " at " + str(value['team2']))
 
+    def readHtmlFileEspn(self, teamToWatch='Montreal'):
+        updatedScore = False
+        try:
+            f = urllib.request.urlopen(self.FullDescription['url'])
+            # Debug
+            # f = open("debugpathhere/nfl_scores_test.html")
+        except:
+            print("Unable to read page ", self.FullDescription['url'])
+            exit
+
+        #time.sleep(20)
+        stringMatches = f.read()
+        f.close()
+
+        #print("\"events\":[{\"date\":\"")
+        #splitLeague = (stringMatches.decode("utf-8")).split("\"events\":[{\"date\":\"")
+        splitLeague = (stringMatches.decode("utf-8")).split("\"National Football League\",\"season\"")
+        #splitMatches = (stringMatches.decode("utf-8")).split("<div class=""scoreboard-wrapper"">")
+        splitMatches = splitLeague[1].split("\"competitions\":[{\"date\":")
+        splitStats = splitMatches[14].split(",")
+
+        f = open("testfile.txt", "w+")
+
+        #for match_index in range(1,  len(splitMatches)):
+        match_index = 1
+        display_clock = splitMatches[match_index].split("displayClock\":\"")[1].split("\"")[0]
+        score1 = splitMatches[match_index].split("\"homeAway\":\"home\"")[1].split("\"score\":\"")[1].split("\"")[0]
+        score2 = splitMatches[match_index].split("\"homeAway\":\"away\"")[1].split("\"score\":\"")[1].split("\"")[0]
+        team1_logo = splitMatches[match_index].split("\"logo\":\"")[1].split("\"")[0]
+        team2_logo = splitMatches[match_index].split("\"logo\":\"")[2].split("\"")[0]
+
+        print("Score Home = " + score1)
+        print("Score Away = " + score2)
+        print("Time Left = " + display_clock)
+        print("Team 1 logo = " + team1_logo)
+        print("Team 2 logo = " + team2_logo)
+        print("")
+
+        for a in splitStats:
+           # print(a)
+            if (a.find("displayClock") != -1):
+                f.write("Display Clock = " + a + "\n")
+            f.write(a)
+            f.write("\n")
+
+        '''
+        f.write(splitMatches[1].split("\"score\":\"")[1])
+        f.write("\n")
+        f.write(splitMatches[1].split("\"score\":\"")[2])
+        '''
+
     def readHtmlFile(self, teamToWatch='Montreal'):
         updatedScore = False
 
         try:
             f = urllib.request.urlopen(self.FullDescription['url'])
-            # Debug
+            # Debugscoreboard-wrapper
             # f = open("debugpathhere/nfl_scores_test.html")
         except:
             print("Unable to read page ", self.FullDescription['url'])
@@ -168,6 +220,7 @@ class football(sportsClass):
         sportsClass.__init__(self,sport='football',league='nfl')
         # sportsClass.__init__(self)
         self.FullDescription['url'] = 'http://www.espn.com/' + self.league + '/bottomline/scores'
+        #self.FullDescription['url'] = 'http://www.espn.com/' + self.league + '/scoreboard'
         self.FullDescription['time'] = True
         self.FullDescription['separator'] = 'Quarter'
         self.FullDescription['timeSeparator'] = 15
