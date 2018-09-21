@@ -102,9 +102,15 @@ class displayScore:
         return 1
 
     def download_and_display_graphic(self, urlbase, graphname="", extension="png"):
-        url = urlbase + graphname + "." + extension
-        graph_temp = urllib.request.urlopen(url)
-        graph_data = graph_temp.read()
+
+        try:
+            url = urlbase + graphname + "." + extension
+            graph_temp = urllib.request.urlopen(url)
+            graph_data = graph_temp.read()
+        except:
+            print("Error: Unable to find " + graphname + "." + extension)
+            print("url: " + url + " does not work")
+            return -1
 
         img_path = "teamlogos/" + graphname + "." + extension
         f = open(img_path, "wb+")
@@ -119,6 +125,10 @@ class displayScore:
             .transform(self.device.size, Image.AFFINE, (1, 0, -5, 0, 1, 15), Image.BILINEAR) \
             .convert(self.device.mode)
 
+        self.device.display(self.background.convert(self.device.mode))
+
+    def display_graphic(self, filepath, graphname="color_bars", extension="png"):
+        self.background = Image.open(filepath + "/" + graphname + "." + extension)
         self.device.display(self.background.convert(self.device.mode))
 
 '''

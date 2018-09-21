@@ -12,10 +12,15 @@ matchup = {'team1': '', 'score1': 0, 'team2': '', 'score2': 0}
 
 class sportsClass:
 
+    cities = {'Atlanta': 'atl', 'Boston': 'bos', 'Montreal': 'mtl', 'NY Giants': 'nyg', 'NY Islanders': 'nyi',
+              'NY Jets': 'nyj', 'NY Rangers': 'nyr', 'Toronto': 'tor', 'Vancouver': 'van', 'Winnipeg': 'wpg',
+              'Ottawa': 'ott', 'Edmonton': 'edm', 'Calgary': 'cgy', 'San Jose': 'sj', 'New Jersey': 'nj',
+              'Florida': 'fla', 'Philadephia': 'phi', 'San Francisco': 'sf', 'San Diego': 'sd', 'Los Angeles': 'la',
+              'Tampa Bay': 'tb', 'Green Bay': 'gb', 'New England': 'ne', 'Carolina': 'car', 'Cleveland': 'cle'}
 
     def __init__(self, sport='', league=''):
         self.sportSel = sport
-        self.FullDescription = {'sport': sport, 'league': league, 'time': True, 'separator': '', 'timeSeparator': 0, 'url': ''}
+        self.FullDescription = {'sport': sport, 'league': league, 'time': True, 'separator': '', 'timeSeparator': 0, 'url': '', 'sport_separator': ''}
         self.league = league
         self.teamList = ['','']
         self.matchups = {'match1':{}}
@@ -32,7 +37,7 @@ class sportsClass:
         for key, value in self.matchups.items():
             print(key + ": " + str(value['team1']) + " at " + str(value['team2']))
 
-    def readHtmlFileEspn(self, teamToWatch='Montreal'):
+    def readHtmlFileEspn(self):
         updatedScore = False
         try:
             f = urllib.request.urlopen(self.FullDescription['url'])
@@ -198,6 +203,15 @@ class sportsClass:
         except:
             print("No matches found")
 
+    def get_cities_abrev(self, city):
+        try:
+            return self.cities[city]
+        except:
+            print("Error unable to find " + city + " in cities")
+            print("Available names are:")
+            print(self.cities)
+            return ''
+
     def printAllMatches(self):
         for key, value in self.matchups.items():
             print("\n", key)
@@ -208,6 +222,9 @@ class sportsClass:
 
     def printUrl(self):
         print(self.FullDescription['url'])
+
+    def get_sport_separator(self):
+        return self.FullDescription['sport_separator']
 
     def updateScores(self, matchup):
 
@@ -224,6 +241,7 @@ class football(sportsClass):
         self.FullDescription['time'] = True
         self.FullDescription['separator'] = 'Quarter'
         self.FullDescription['timeSeparator'] = 15
+        self.FullDescription['sport_separator'] = 'QTR'
 
         if self.league == 'nfl':
             self.FullDescription['league'] = 'nfl'
