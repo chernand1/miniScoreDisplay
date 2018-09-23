@@ -5,8 +5,6 @@ from subprocess import check_output
 import urllib.request
 from math import floor
 
-#import msvcrt
-
 class displayScore:
 
     rotate_conversion = {0: '0', 90: '1', 180: '2', 270: '3'}

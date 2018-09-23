@@ -4,9 +4,6 @@
 import urllib
 import urllib.request
 import re
-import time
-
-#from lxml import html
 
 matchup = {'team1': '', 'score1': 0, 'team2': '', 'score2': 0}
 
