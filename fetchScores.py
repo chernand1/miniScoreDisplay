@@ -12,8 +12,12 @@ class sportsClass:
     cities = {'Atlanta': 'atl', 'Boston': 'bos', 'Montreal': 'mtl', 'NY Giants': 'nyg', 'NY Islanders': 'nyi',
               'NY Jets': 'nyj', 'NY Rangers': 'nyr', 'Toronto': 'tor', 'Vancouver': 'van', 'Winnipeg': 'wpg',
               'Ottawa': 'ott', 'Edmonton': 'edm', 'Calgary': 'cgy', 'San Jose': 'sj', 'New Jersey': 'nj',
-              'Florida': 'fla', 'Philadephia': 'phi', 'San Francisco': 'sf', 'San Diego': 'sd', 'Los Angeles': 'la',
-              'Tampa Bay': 'tb', 'Green Bay': 'gb', 'New England': 'ne', 'Carolina': 'car', 'Cleveland': 'cle'}
+              'Florida': 'fla', 'Philadelphia': 'phi', 'San Francisco': 'sf', 'San Diego': 'sd', 'Los Angeles': 'la',
+              'Tampa Bay': 'tb', 'Green Bay': 'gb', 'New England': 'ne', 'Carolina': 'car', 'Cleveland': 'cle',
+              'Houston': 'hou', 'Dallas': 'dal', 'Seattle': 'sea', 'Chicago': 'chi', 'Kansas City': 'kc', 'Washington': 'was',
+              'Pittsburgh': 'pit', 'Oakland': 'oak', 'Miami': 'mia', 'Buffalo': 'buf', 'New Orleans': 'no', 'Cincinnati': 'cin',
+              'Denver': 'den', 'Arizona': 'ari', 'Baltimore': 'bal', 'Tennessee': 'ten', 'Detroit': 'det', 'Indianapolis': 'ind',
+              'Jacksonville': 'jac', 'Minnesota': 'min'}
 
     def __init__(self, sport='', league=''):
         self.sportSel = sport
@@ -169,9 +173,6 @@ class sportsClass:
     def getScores(self):
         print("Scores")
 
-    def getMatchups(self):
-        print('matchups')
-
     def getMatchDetail(self, matchup=1):
         try:
             return self.matchups['match' + str(matchup)]
@@ -213,6 +214,23 @@ class sportsClass:
         for key, value in self.matchups.items():
             print("\n", key)
             self.printMatch(int(key.replace("match", "")))
+
+    def getMatchups(self):
+        matchups = []
+
+        #sorted_matchups = sorted(self.matchups, key=str.replace("match", ""))
+
+        #for key, value in self.matchups.items():
+         #   matchups.append(self.cities[(self.matchups[key]['team1'])] + " @ " + self.cities[str(self.matchups[key]['team2'])])
+
+        print("Len of matchups 2 = " + str(len(self.matchups)))
+        for match_no in range (1, len(self.matchups) + 1):
+            new_key = "match" + str(match_no)
+            matchups.append(self.cities[(self.matchups[new_key]['team1'])] + " @ " + self.cities[str(self.matchups[new_key]['team2'])])
+
+        print(matchups)
+
+        return matchups
 
     def getTeamsScore(self, teamString):
         return teamString

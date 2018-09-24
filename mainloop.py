@@ -16,6 +16,10 @@ matchToWatch.readHtmlFile()
 
 print(matchToWatch.printUrl())
 matchToWatch.printAllMatches()
+matchups = matchToWatch.getMatchups()
+
+print(matchups)
+
 matchToWatch.listTeams()
 #my_keyboard_reader = keyboard_input()
 

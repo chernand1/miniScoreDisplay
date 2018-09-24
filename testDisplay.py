@@ -2,6 +2,9 @@ from miniDisplayScore import displayScore
 from tm1637 import TM1637
 import time
 from fetchScores import football
+from system_tools import get_char
+
+myKey = get_char()
 
 matchToWatch = football(league='nfl')
 matchToWatch.readHtmlFile()
@@ -13,25 +16,87 @@ display1.createDevice(portNo='0', bgcolor="red", reset_pin='25', rotate_screen=1
 display1.display_graphic("misc_images", "color_bars2")
 display2.createDevice(portNo='1', bgcolor="green", reset_pin='22', rotate_screen=180)
 display2.display_graphic("misc_images", "color_bars2")
-
-'''
-availablefonts = display1.fonttype()
-print (availablefonts['1'])
-
-'''
+time.sleep(2)
+display1.clearscreen("Black")
+display2.clearscreen("Black")
 
 lcddisplay = TM1637(4, 21)
 
 display1.check_wifi_network()
+matchups = matchToWatch.getMatchups()
 
-selected_team_to_watch = "NY Jets"
+string_to_print_screen1 = ''
+string_to_print_screen2 = ''
+nb_of_matchups = len(matchups)
+selected_match = 0
+matchNumber = 0
+print("Number of matchups = " + str(nb_of_matchups))
+nb_loops = 0
 
-matchNumber = str(matchToWatch.getMatchNumber(selected_team_to_watch))
+while(selected_match == 0):
+    string_to_print_screen1 = ''
+    string_to_print_screen2 = ''
+    if nb_loops > 0:
+        time.sleep(5)
+    display1.clearscreen("Black")
+    display2.clearscreen("Black")
+    for i in range(0, nb_of_matchups):
+        print("i = " + str(i))
+        if (i % 8 == 0):
+            string_to_print_screen1 = ''
+            string_to_print_screen2 = ''
+            time.sleep(5)
+            display1.clearscreen("Black")
+            display2.clearscreen("Black")
+
+        if (i % 2 == 0):
+            string_to_print_screen1 = string_to_print_screen1 + str(i+1) + ":" + matchups[i] + "\n"
+            print(str(i) + ":" + matchups[i])
+        else:
+            string_to_print_screen2 = string_to_print_screen2 + str(i+1) + ":" + matchups[i] + "\n"
+            print(str(i) + ":" + matchups[i])
+
+        print("Screen 1 = " + string_to_print_screen1)
+        print("Screen 2 = " + string_to_print_screen2)
+        display1.print_characters(string_to_print_screen1, "FreePixel", 16, 0, 0, "White", 0)
+        display2.print_characters(string_to_print_screen2, "FreePixel", 16, 0, 0, "White", 0)
+
+        #time.sleep(2)
+
+    nb_loops = nb_loops + 1
+    print("Number of loops = " + str(nb_loops))
+
+    keyPressed = int(myKey.get_key(True, 2))
+    if keyPressed > 0 and keyPressed < nb_of_matchups:
+        matchNumber = keyPressed
+        print("Selected Match Number = " + str(matchNumber))
+        #debug remove
+        matchNumber = 15
+        break
+
+    # Time out 10 loops. Esxit While
+    if nb_loops == 10:
+        matchNumber = 1
+        break
+    # Key Pressed Exit While
+    #if matchNumber != 0:
+       # break
+
+
+time.sleep(5)
+display1.clearscreen("Black")
+display2.clearscreen("Black")
+
+#selected_team_to_watch = "New England"
+
+#matchNumber = matchToWatch.getMatchNumber(selected_team_to_watch)
 full_team1_name = matchToWatch.getMatchDetail(matchNumber)['team1']
 full_team2_name = matchToWatch.getMatchDetail(matchNumber)['team2']
+selected_team_to_watch = full_team1_name
+
 abrev_team1 = matchToWatch.get_cities_abrev(full_team1_name)
 abrev_team2 = matchToWatch.get_cities_abrev(full_team2_name)
-time.sleep(2)
+
 display1.clearscreen("Black")
 display2.clearscreen("Black")
 
@@ -77,8 +142,10 @@ while(1):
     display1.clearscreen("Black")
     display2.clearscreen("Black")
     lcddisplay.show_clock()
-    display1.download_and_display_graphic("http://a.espncdn.com/i/teamlogos/" + matchToWatch.league + "/500/scoreboard/", abrev_team1, "png")
-    display2.download_and_display_graphic("http://a.espncdn.com/i/teamlogos/" + matchToWatch.league + "/500/scoreboard/", abrev_team2, "png")
+
+    display1.download_and_display_graphic("http://a.espncdn.com/combiner/i?img=/i/teamlogos/" + matchToWatch.league + "/500/", abrev_team1, "png")
+    display2.download_and_display_graphic("http://a.espncdn.com/combiner/i?img=/i/teamlogos/" + matchToWatch.league + "/500/", abrev_team2, "png")
+    #display2.download_and_display_graphic("http://a.espncdn.com/i/teamlogos/" + matchToWatch.league + "/500/scoreboard/", abrev_team2, "png")
     time.sleep(4)
     display1.clearscreen("Black")
     display2.clearscreen("Black")
