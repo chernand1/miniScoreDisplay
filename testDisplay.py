@@ -1,12 +1,13 @@
 from miniDisplayScore import displayScore
 from tm1637 import TM1637
 import time
-from fetchScores import football
+from fetchScores import football, hockey
 from system_tools import get_char
 
 myKey = get_char()
 
-matchToWatch = football(league='nfl')
+#matchToWatch = football(league='nfl')
+matchToWatch = hockey(league='nhl')
 matchToWatch.readHtmlFile()
 
 display1 = displayScore()
@@ -61,35 +62,26 @@ while(selected_match == 0):
         display1.print_characters(string_to_print_screen1, "FreePixel", 16, 0, 0, "White", 0)
         display2.print_characters(string_to_print_screen2, "FreePixel", 16, 0, 0, "White", 0)
 
-        #time.sleep(2)
 
     nb_loops = nb_loops + 1
     print("Number of loops = " + str(nb_loops))
 
-    keyPressed = int(myKey.get_key(True, 2))
-    if keyPressed > 0 and keyPressed < nb_of_matchups:
+    time.sleep(5)
+    keyPressed = myKey.get_string()
+    if keyPressed > 0 and keyPressed <= nb_of_matchups:
         matchNumber = keyPressed
         print("Selected Match Number = " + str(matchNumber))
-        #debug remove
-        matchNumber = 15
         break
 
     # Time out 10 loops. Esxit While
     if nb_loops == 10:
         matchNumber = 1
         break
-    # Key Pressed Exit While
-    #if matchNumber != 0:
-       # break
-
 
 time.sleep(5)
 display1.clearscreen("Black")
 display2.clearscreen("Black")
 
-#selected_team_to_watch = "New England"
-
-#matchNumber = matchToWatch.getMatchNumber(selected_team_to_watch)
 full_team1_name = matchToWatch.getMatchDetail(matchNumber)['team1']
 full_team2_name = matchToWatch.getMatchDetail(matchNumber)['team2']
 selected_team_to_watch = full_team1_name

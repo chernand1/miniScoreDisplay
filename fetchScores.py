@@ -17,7 +17,7 @@ class sportsClass:
               'Houston': 'hou', 'Dallas': 'dal', 'Seattle': 'sea', 'Chicago': 'chi', 'Kansas City': 'kc', 'Washington': 'was',
               'Pittsburgh': 'pit', 'Oakland': 'oak', 'Miami': 'mia', 'Buffalo': 'buf', 'New Orleans': 'no', 'Cincinnati': 'cin',
               'Denver': 'den', 'Arizona': 'ari', 'Baltimore': 'bal', 'Tennessee': 'ten', 'Detroit': 'det', 'Indianapolis': 'ind',
-              'Jacksonville': 'jac', 'Minnesota': 'min'}
+              'Jacksonville': 'jac', 'Minnesota': 'min', 'Colorado': 'col', 'Vegas': 'vgs', 'Anaheim': 'ana'}
 
     def __init__(self, sport='', league=''):
         self.sportSel = sport
@@ -273,13 +273,13 @@ class football(sportsClass):
 
 class hockey(sportsClass):
 
-    def __init__(self):
+    def __init__(self, league):
         sportsClass.__init__(self,sport='hockey',league='nhl')
         self.FullDescription['url'] = 'http://www.espn.com/' + self.league + '/bottomline/scores'
         self.FullDescription['time'] = True
         self.FullDescription['separator'] = 'Period'
         self.FullDescription['timeSeparator'] = 20
-
+        self.FullDescription['sport_separator'] = 'PER'
 
         if self.league == 'nhl':
             self.FullDescription['league'] = 'nhl'
@@ -295,7 +295,7 @@ class baseball(sportsClass):
         self.FullDescription['time'] = True
         self.FullDescription['separator'] = 'Innings'
         self.FullDescription['timeSeparator'] = 0
-
+        self.FullDescription['sport_separator'] = 'INI'
 
         if self.league == 'mlb':
             self.FullDescription['league'] = 'mlb'
