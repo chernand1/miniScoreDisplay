@@ -1,14 +1,10 @@
 from miniDisplayScore import displayScore
 from tm1637 import TM1637
 import time
-from fetchScores import football, hockey
+from fetchScores import football, hockey, baseball
 from system_tools import get_char
 
 myKey = get_char()
-
-#matchToWatch = football(league='nfl')
-matchToWatch = hockey(league='nhl')
-matchToWatch.readHtmlFile()
 
 display1 = displayScore()
 display2 = displayScore()
@@ -24,6 +20,34 @@ display2.clearscreen("Black")
 lcddisplay = TM1637(4, 21)
 
 display1.check_wifi_network()
+
+display1.print_characters("Choose Sport\nLeague", "FreePixel", 16, 0, 0, "White", 0)
+display2.print_characters("1: NFL\n2: NHL\n3: MLB", "FreePixel", 16, 0, 0, "White", 0)
+time.sleep(10)
+display1.clearscreen("Black")
+display2.clearscreen("Black")
+keyPressed = myKey.get_string()
+tmp_leagues = football('nfl')
+selected_league = 'nfl'
+
+if keyPressed > 0 and keyPressed <= len(tmp_leagues.available_leagues):
+    selected_league = tmp_leagues.available_leagues[keyPressed -1]
+    print("Selected league = " + selected_league)
+    display1.print_characters(selected_league + " Selected", "FreePixel", 16, 0, 0, "White", 0)
+
+time.sleep(5)
+display1.clearscreen("Black")
+display2.clearscreen("Black")
+
+if selected_league == 'nfl':
+    matchToWatch = football(league=selected_league)
+if selected_league == 'nhl':
+    matchToWatch = hockey(league=selected_league)
+else:
+    matchToWatch = baseball(league=selected_league)
+
+matchToWatch.readHtmlFile()
+
 matchups = matchToWatch.getMatchups()
 
 string_to_print_screen1 = ''
@@ -37,8 +61,8 @@ nb_loops = 0
 while(selected_match == 0):
     string_to_print_screen1 = ''
     string_to_print_screen2 = ''
-    if nb_loops > 0:
-        time.sleep(5)
+    #if nb_loops > 0:
+        #time.sleep(5)
     display1.clearscreen("Black")
     display2.clearscreen("Black")
     for i in range(0, nb_of_matchups):
@@ -46,7 +70,8 @@ while(selected_match == 0):
         if (i % 8 == 0):
             string_to_print_screen1 = ''
             string_to_print_screen2 = ''
-            time.sleep(5)
+            if (i !=0 ):
+                time.sleep(5)
             display1.clearscreen("Black")
             display2.clearscreen("Black")
 
@@ -66,7 +91,9 @@ while(selected_match == 0):
     nb_loops = nb_loops + 1
     print("Number of loops = " + str(nb_loops))
 
-    time.sleep(5)
+    if string_to_print_screen1 != '':
+        time.sleep(5)
+
     keyPressed = myKey.get_string()
     if keyPressed > 0 and keyPressed <= nb_of_matchups:
         matchNumber = keyPressed

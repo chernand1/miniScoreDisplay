@@ -17,7 +17,9 @@ class sportsClass:
               'Houston': 'hou', 'Dallas': 'dal', 'Seattle': 'sea', 'Chicago': 'chi', 'Kansas City': 'kc', 'Washington': 'was',
               'Pittsburgh': 'pit', 'Oakland': 'oak', 'Miami': 'mia', 'Buffalo': 'buf', 'New Orleans': 'no', 'Cincinnati': 'cin',
               'Denver': 'den', 'Arizona': 'ari', 'Baltimore': 'bal', 'Tennessee': 'ten', 'Detroit': 'det', 'Indianapolis': 'ind',
-              'Jacksonville': 'jac', 'Minnesota': 'min', 'Colorado': 'col', 'Vegas': 'vgs', 'Anaheim': 'ana'}
+              'Jacksonville': 'jac', 'Minnesota': 'min', 'Colorado': 'col', 'Vegas': 'vgs', 'Anaheim': 'ana', 'NY Yankees': 'NYY',
+              'NY Mets': 'NYM', 'Chicago Sox': 'chw', 'Chicago Cubs': 'chc', 'Milwaukee': 'mil', 'St. Louis': 'stl', 'LA Dodgers': 'lad',
+              'LA Angels': 'laa', 'Texas': 'tex', 'Columbus': 'cbj', 'Nashville': 'nsh'}
 
     def __init__(self, sport='', league=''):
         self.sportSel = sport
@@ -25,6 +27,10 @@ class sportsClass:
         self.league = league
         self.teamList = ['','']
         self.matchups = {'match1':{}}
+        self.available_leagues = ['nfl', 'nhl', 'mlb']
+
+    def get_leagues(self):
+        return self.available_leagues
 
     def description(self):
         for key, value in self.FullDescription.items():
@@ -289,7 +295,7 @@ class hockey(sportsClass):
 
 class baseball(sportsClass):
 
-    def __init__(self):
+    def __init__(self, league):
         sportsClass.__init__(self,sport='baseball',league='mlb')
         self.FullDescription['url'] = 'http://www.espn.com/' + self.league + '/bottomline/scores'
         self.FullDescription['time'] = True
