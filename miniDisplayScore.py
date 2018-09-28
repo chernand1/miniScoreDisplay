@@ -85,7 +85,7 @@ class displayScore:
     def check_wifi_network(self):
 
         scanoutput = check_output(["iwlist", "wlan0", "scan"])
-
+        ssid = []
         try:
             urllib.request.urlopen('http://www.google.com/')
         except:
@@ -93,11 +93,11 @@ class displayScore:
             print("Check available SSID and connect")
             for line in scanoutput.split():
                 if line.startswith(b'ESSID'):
-                    ssid = line.split(b'"')[1]
+                    ssid.append((line.split(b'"')[1]).decode('utf-8'))
                     print (ssid)
-            return 0
+            return 1, ssid
 
-        return 1
+        return 0, ''
 
     def download_and_display_graphic(self, urlbase, graphname="", extension="png"):
 

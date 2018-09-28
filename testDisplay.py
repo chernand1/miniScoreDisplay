@@ -5,6 +5,8 @@ from fetchScores import football, hockey, baseball
 from system_tools import get_char
 
 myKey = get_char()
+lcddisplay = TM1637(4, 21)
+lcddisplay.show_clock()
 
 display1 = displayScore()
 display2 = displayScore()
@@ -17,9 +19,16 @@ time.sleep(2)
 display1.clearscreen("Black")
 display2.clearscreen("Black")
 
-lcddisplay = TM1637(4, 21)
 
-display1.check_wifi_network()
+
+error, ssid = display1.check_wifi_network()
+if error == 1:
+    display1.display_graphic("misc_images", "Internet-Access-Error")
+    string_to_print_ssid = "Available SSIDs:"
+    for ssid_disp in ssid:
+        string_to_print_ssid = string_to_print_ssid + ssid_disp + "\n"
+    display2.print_characters(string_to_print_ssid, "FreePixel", 16, 0, 0, "White", 0)
+    time.sleep(10)
 
 display1.print_characters("Choose Sport\nLeague", "FreePixel", 16, 0, 0, "White", 0)
 display2.print_characters("1: NFL\n2: NHL\n3: MLB", "FreePixel", 16, 0, 0, "White", 0)
@@ -39,12 +48,14 @@ time.sleep(5)
 display1.clearscreen("Black")
 display2.clearscreen("Black")
 
-if selected_league == 'nfl':
+if selected_league.find('nfl') != -1:
     matchToWatch = football(league=selected_league)
-if selected_league == 'nhl':
-    matchToWatch = hockey(league=selected_league)
 else:
-    matchToWatch = baseball(league=selected_league)
+    if selected_league.find('nhl') != -1:
+        matchToWatch = hockey(league=selected_league)
+    else:
+        print("Why baseball")
+        matchToWatch = baseball(league=selected_league)
 
 matchToWatch.readHtmlFile()
 
