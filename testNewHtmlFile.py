@@ -2,17 +2,22 @@ from fetchScores import football
 from miniDisplayScore import displayScore
 import time
 from system_tools import get_char
+from multi_axis_switch import multi_axis_switch
 
-myKey = get_char()
+mySwitch = multi_axis_switch()
 
-print("First one =")
+print("Current Switch States = " + str(mySwitch.switch_state()))
+mySwitch.init_event()
 
 while(1):
-    a = myKey.get_key()
-    print("Before myKey")
-    print(a)
-    print("After myKey = " + str(a))
-    time.sleep(2)
+    time.sleep(0.5)
+    if (mySwitch.return_sw_up() == 0):
+        print("Up Switch pressed")
+    if (mySwitch.return_sw_down() == 0):
+        print("Down Switch pressed")
+    if (mySwitch.return_sw_push() == 0):
+        print("Switch pushed")
+
 
 #matchToWatch = football(league='nfl')
 #matchToWatch.readHtmlFileEspn()
