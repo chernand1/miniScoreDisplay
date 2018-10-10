@@ -1,4 +1,5 @@
 import RPi.GPIO as GPIO
+import time
 
 class multi_axis_switch:
 
@@ -10,7 +11,11 @@ class multi_axis_switch:
         self.down_contact = down_contact
         self.push_contact = push_contact
 
-        self.push_contact_state = 1
+        self.push_contact_state = 0
+        self.right_contact_state = 0
+        self.left_contact_state = 0
+        self.up_contact_state = 0
+        self.down_contact_state = 0
 
         GPIO.setmode(GPIO.BCM)
 
@@ -23,15 +28,29 @@ class multi_axis_switch:
 
     def init_event(self):
 
+        GPIO.add_event_detect(self.up_contact, GPIO.FALLING)
         GPIO.add_event_detect(self.push_contact, GPIO.FALLING)
         GPIO.add_event_detect(self.down_contact, GPIO.FALLING)
 
         def switch_push(cast):
-            print("Push")
+            self.push_contact_state = 1
+            self.up_contact_state = 0
+            self.down_contact_state = 0
+            time.sleep(0.5)
         GPIO.add_event_callback(self.push_contact, switch_push)
 
+        def switch_up(cast):
+            self.push_contact_state = 0
+            self.up_contact_state = 1
+            self.down_contact_state = 0
+            time.sleep(0.5)
+        GPIO.add_event_callback(self.up_contact, switch_up)
+
         def switch_down(cast):
-            print("Down")
+            self.push_contact_state = 0
+            self.up_contact_state = 0
+            self.down_contact_state = 1
+            time.sleep(0.5)
         GPIO.add_event_callback(self.down_contact, switch_down)
 
 
@@ -49,6 +68,23 @@ class multi_axis_switch:
             return "Down Switch"
         if GPIO.input(self.push_contact) == 0:
             return "Push Switch"
+
+    def return_switchstate(self):
+
+        push = self.push_contact_state
+        right = self.right_contact_state
+        left = self.left_contact_state
+        up = self.up_contact_state
+        down = self.down_contact_state
+
+        # Reset states after read
+        self.push_contact_state = 0
+        self.right_contact_state = 0
+        self.left_contact_state = 0
+        self.up_contact_state = 0
+        self.down_contact_state = 0
+
+        return push, right, left, up, down
 
     def return_sw_right(self):
         return GPIO.input(self.right_contact)
