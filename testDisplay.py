@@ -42,24 +42,21 @@ def checkInternetAccess(display1, display2):
 
         return error
 
-def chooseLeague(display1, display2):
+def chooseLeague(display1, display2, selection_switch):
 
-    selection_switch = multi_axis_switch()
-    selection_switch.init_event()
     tmp_leagues = football('nfl')
 
-    display_line1 = "Choose Sport\nLeague"
-    display_line2 = "Current\nSelection: "
+    display_line1 = "Selection:"
     current_selection = 0
 
-    text_to_print = display_line1 + display_line2
-    display2.print_characters("1: NFL\n2: NHL\n3: MLB", "FreePixel", 16, 0, 0, "White", 0)
+    display1.print_characters("Using \njoystick\nChoose\nleague", "FreePixel", 16, 0, 0, "White", 0)
 
     pushval = 0
     selected_league = 'nfl'
 
     while(pushval == 0):
-        display1.print_characters(text_to_print + str(current_selection), "FreePixel", 16, 0, 0, "White", 0)
+        display2.print_list_choice(display1, display2, display_line1, tmp_leagues.available_leagues, current_selection, "FreePixel", 16,
+                                   "White")
         time.sleep(2)
         values = selection_switch.return_switchstate()
         downval = values[4]
@@ -67,21 +64,95 @@ def chooseLeague(display1, display2):
         pushval = values[0]
         current_selection = current_selection + downval - upval
 
-        if current_selection < 1:
-            current_selection = 1
-        if current_selection > len(tmp_leagues.available_leagues):
-            current_selection = len(tmp_leagues.available_leagues)
+        if current_selection < 0:
+            current_selection = 0
+        if current_selection == len(tmp_leagues.available_leagues):
+            current_selection = len(tmp_leagues.available_leagues) - 1
+            print("Maximum reached curr sel = " + str(current_selection))
 
         print(str(current_selection))
 
-        display1.clearscreen("Black")
-        selected_league = tmp_leagues.available_leagues[current_selection - 1]
+        #display1.clearscreen("Black")
+        selected_league = tmp_leagues.available_leagues[current_selection]
 
+    display1.clearscreen("Black")
     display1.print_characters(selected_league + " Selected", "FreePixel", 16, 0, 0, "White", 0)
-
+    time.sleep(2)
     return selected_league
 
+
+def choose_matchups(display1, display2, matchups, selection_switch):
+
+    nb_of_matchups = len(matchups)
+
+    selected_match = -1
+    pushval = 0
+    current_selection = 1
+
+    while (pushval == 0):
+        string_to_print_screen1 = ''
+        string_to_print_screen2 = ''
+
+        screen1_array = []
+        screen2_array = []
+        screens_array = []
+
+        display1.clearscreen("Black")
+        display2.clearscreen("Black")
+        for i in range(0, nb_of_matchups):
+            print("i = " + str(i))
+            if (i % 8 == 0):
+                string_to_print_screen1 = ''
+                string_to_print_screen2 = ''
+
+                if (i != 0):
+                    time.sleep(5)
+                display1.clearscreen("Black")
+                display2.clearscreen("Black")
+
+            screens_array.append(str(i + 1) + ":" + matchups[i] + "\n")
+
+            if (i % 2 == 0):
+                string_to_print_screen1 = string_to_print_screen1 + str(i + 1) + ":" + matchups[i] + "\n"
+                screen1_array.append(str(i + 1) + ":" + matchups[i] + "\n")
+                print(str(i) + ":" + matchups[i])
+            else:
+                string_to_print_screen2 = string_to_print_screen2 + str(i + 1) + ":" + matchups[i] + "\n"
+                screen2_array.append(str(i + 1) + ":" + matchups[i] + "\n")
+                print(str(i) + ":" + matchups[i])
+
+            print("Screen 1 = " + string_to_print_screen1)
+            print("Screen 2 = " + string_to_print_screen2)
+            #display1.print_characters(string_to_print_screen1, "FreePixel", 16, 0, 0, "White", 0)
+            #display2.print_characters(string_to_print_screen2, "FreePixel", 16, 0, 0, "White", 0)
+
+            values = selection_switch.return_switchstate()
+            downval = values[4]
+            upval = values[3]
+            pushval = values[0]
+            print("Push Val = " + str(pushval))
+            current_selection = current_selection + downval - upval
+
+            if current_selection < 0:
+                current_selection = 0
+            if current_selection == len(matchups):
+                current_selection = len(matchups) - 1
+
+            print("Selected Match = " + matchups[current_selection])
+
+        #selected_match = matchups[current_selection]
+        #print("Selected Match = " + matchups[current_selection] + "selected Match number = " + str(selected_match))
+        print(screens_array)
+        display1.print_list_choice(display1, display2, "", screens_array, current_selection, "FreePixel", 16, "White", False)
+        time.sleep(5)
+
+    return current_selection
+
+
 def main():
+
+    selection_switch = multi_axis_switch()
+    selection_switch.init_event()
 
     display1, display2, lcddisplay = initializeBoard()
 
@@ -89,9 +160,8 @@ def main():
     while error == 0:
         error = checkInternetAccess(display1, display2)
 
-    selected_league = chooseLeague( display1, display2)
+    selected_league = chooseLeague( display1, display2, selection_switch)
 
-    time.sleep(5)
     display1.clearscreen("Black")
     display2.clearscreen("Black")
 
@@ -101,21 +171,15 @@ def main():
         if selected_league.find('nhl') != -1:
             matchToWatch = hockey(league=selected_league)
         else:
-            print("Why baseball")
             matchToWatch = baseball(league=selected_league)
 
     matchToWatch.readHtmlFile()
 
     matchups = matchToWatch.getMatchups()
 
-    string_to_print_screen1 = ''
-    string_to_print_screen2 = ''
-    nb_of_matchups = len(matchups)
-    selected_match = 0
-    matchNumber = 0
-    print("Number of matchups = " + str(nb_of_matchups))
-    nb_loops = 0
+    matchNumber = choose_matchups(display1, display2, matchups, selection_switch)
 
+    '''
     while(selected_match == 0):
         string_to_print_screen1 = ''
         string_to_print_screen2 = ''
@@ -162,6 +226,7 @@ def main():
         if nb_loops == 10:
             matchNumber = 1
             break
+    '''
 
     time.sleep(5)
     display1.clearscreen("Black")

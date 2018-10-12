@@ -4,6 +4,7 @@ from luma.core.render import canvas
 from subprocess import check_output
 import urllib.request
 from math import floor
+import time
 
 class displayScore:
 
@@ -128,6 +129,71 @@ class displayScore:
     def display_graphic(self, filepath, graphname="color_bars", extension="png"):
         self.background = Image.open(filepath + "/" + graphname + "." + extension)
         self.device.display(self.background.convert(self.device.mode))
+
+
+    # Prints the list on the selected screen
+    # and shows the current selection as color green
+    def print_list_choice(self, display1, display2, headertext, listItems, currentSelection, font, fontsize, color="White", use_single=True):
+
+        if use_single == True:
+            display1 = self
+
+        text_color = color
+        #print("Header Text here...")
+        #display1.print_characters(headertext, font, fontsize, 0, 0, text_color, 0)
+        #time.sleep(5)
+        number_line_feed = len(headertext.split("\n"))
+        line_spaces = ""
+        lines_per_screen = int(int(self.resolutionY) / fontsize)
+        print("Lines per screen = " + str(lines_per_screen))
+
+        print("Number line feed" + str(number_line_feed))
+        print(number_line_feed)
+
+        for i in range(number_line_feed):
+            line_spaces = line_spaces + "\n"
+            print("Is this used line space")
+
+        print("First Line spaces = " + str(line_spaces))
+
+        item_div2 = 0
+        lines_screen1 = 0
+
+        for item in range (len(listItems)):
+
+            item_div2 = item / 2
+            if (item == currentSelection):
+                text_color = "Green"
+            else:
+                text_color = color
+
+            print(str(item) + ": " + listItems[item])
+
+            if use_single == True:
+                display1.print_characters(line_spaces + listItems[item] + "\n", font, fontsize, 0, 0, text_color, 0)
+                line_spaces = line_spaces + "\n"
+                lines_screen1 = lines_screen1 + 1
+            else:
+                if (item % 2 == 0):
+                    print("Modulo 2")
+                    display1.print_characters(line_spaces + listItems[item] + "\n", font,
+                                              fontsize, 0, 0, text_color, 0)
+                    line_spaces = line_spaces + "\n"
+                    lines_screen1 = lines_screen1 + 1
+                else:
+                    print("NOT Modulo 2")
+                    display2.print_characters(line_spaces + listItems[item] + "\n", font,
+                                              fontsize, 0, 0, text_color, 0)
+
+            # clear screen when lines exceed max line per screen
+            print("Line feeds = " + str(number_line_feed))
+            print("Item no: " + str(item))
+            if (((lines_screen1 + number_line_feed) % lines_per_screen) == 0):
+                time.sleep(5)
+                display1.clearscreen("Black")
+                if use_single == False:
+                    display2.clearscreen("Black")
+
 
 '''
     def display(self, image):
