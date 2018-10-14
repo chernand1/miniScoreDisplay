@@ -55,9 +55,7 @@ def chooseLeague(display1, display2, selection_switch):
     selected_league = 'nfl'
 
     while(pushval == 0):
-        display2.print_list_choice(display1, display2, display_line1, tmp_leagues.available_leagues, current_selection, "FreePixel", 16,
-                                   "White")
-        time.sleep(2)
+        display2.print_list_choice(display1, display2, display_line1, tmp_leagues.available_leagues, current_selection, "FreePixel", 16, "White")
         values = selection_switch.return_switchstate()
         downval = values[4]
         upval = values[3]
@@ -85,69 +83,99 @@ def choose_matchups(display1, display2, matchups, selection_switch):
 
     nb_of_matchups = len(matchups)
 
-    selected_match = -1
     pushval = 0
-    current_selection = 1
+    current_selection = 0
 
     while (pushval == 0):
-        string_to_print_screen1 = ''
-        string_to_print_screen2 = ''
 
-        screen1_array = []
-        screen2_array = []
         screens_array = []
 
         display1.clearscreen("Black")
         display2.clearscreen("Black")
+        print("Current selection: " + str(current_selection))
+
+        #time.sleep(0.5)
+        values = selection_switch.return_switchstate()
+        downval = values[4]
+        upval = values[3]
+        pushval = values[0]
+        print("Push Val = " + str(pushval))
+
+        current_selection = current_selection + downval - upval
+
+        if current_selection < 0:
+            current_selection = 0
+        if current_selection == len(matchups):
+            current_selection = len(matchups) - 1
+
         for i in range(0, nb_of_matchups):
-            print("i = " + str(i))
-            if (i % 8 == 0):
-                string_to_print_screen1 = ''
-                string_to_print_screen2 = ''
+            screens_array.append(str(i + 1) + ":" + matchups[i])
 
-                if (i != 0):
-                    time.sleep(5)
-                display1.clearscreen("Black")
-                display2.clearscreen("Black")
-
-            screens_array.append(str(i + 1) + ":" + matchups[i] + "\n")
-
-            if (i % 2 == 0):
-                string_to_print_screen1 = string_to_print_screen1 + str(i + 1) + ":" + matchups[i] + "\n"
-                screen1_array.append(str(i + 1) + ":" + matchups[i] + "\n")
-                print(str(i) + ":" + matchups[i])
-            else:
-                string_to_print_screen2 = string_to_print_screen2 + str(i + 1) + ":" + matchups[i] + "\n"
-                screen2_array.append(str(i + 1) + ":" + matchups[i] + "\n")
-                print(str(i) + ":" + matchups[i])
-
-            print("Screen 1 = " + string_to_print_screen1)
-            print("Screen 2 = " + string_to_print_screen2)
-            #display1.print_characters(string_to_print_screen1, "FreePixel", 16, 0, 0, "White", 0)
-            #display2.print_characters(string_to_print_screen2, "FreePixel", 16, 0, 0, "White", 0)
-
-            values = selection_switch.return_switchstate()
-            downval = values[4]
-            upval = values[3]
-            pushval = values[0]
-            print("Push Val = " + str(pushval))
-            current_selection = current_selection + downval - upval
-
-            if current_selection < 0:
-                current_selection = 0
-            if current_selection == len(matchups):
-                current_selection = len(matchups) - 1
-
-            print("Selected Match = " + matchups[current_selection])
-
-        #selected_match = matchups[current_selection]
-        #print("Selected Match = " + matchups[current_selection] + "selected Match number = " + str(selected_match))
-        print(screens_array)
         display1.print_list_choice(display1, display2, "", screens_array, current_selection, "FreePixel", 16, "White", False)
-        time.sleep(5)
 
     return current_selection
 
+def check_for_scoring(display1, display2, matchToWatch, selected_team_to_watch):
+
+    if (matchToWatch.readHtmlFile(selected_team_to_watch) == True):
+        for loop in range(1, 4):
+            display1.print_characters("SCORE", "FreePixel", 60, 0, 0, "White", 1)
+            display2.print_characters("!!!!!", "FreePixel", 60, 0, 0, "White", 1)
+            time.sleep(1)
+            display1.clearscreen("White")
+            display2.clearscreen("White")
+            display1.print_characters("SCORE", "FreePixel", 60, 0, 0, "Black", 1)
+            display2.print_characters("!!!!!", "FreePixel", 60, 0, 0, "Black", 1)
+            time.sleep(1)
+            display1.clearscreen("Black")
+            display2.clearscreen("Black")
+        return True
+
+    else:
+        return False
+
+
+def update_current_match(display1, display2, lcddisplay, matchToWatch, selected_team_to_watch, matchNumber):
+
+    lcddisplay.show_clock()
+
+    full_team1_name = matchToWatch.getMatchDetail(matchNumber)['team1']
+    full_team2_name = matchToWatch.getMatchDetail(matchNumber)['team2']
+
+    check_for_scoring(display1, display2, matchToWatch, selected_team_to_watch)
+
+    display1.print_characters(matchToWatch.getMatchDetail(matchNumber)['team1'], "FreePixel", 30, 0, 0, "Red", 1)
+    display1.print_characters(str(matchToWatch.getMatchDetail(matchNumber)['score1']), "FreePixel", 60, 20, 20, "Red", 1)
+
+    display2.print_characters(matchToWatch.getMatchDetail(matchNumber)['team2'], "FreePixel", 30, 0, 0, "Blue", 1)
+    display2.print_characters(str(matchToWatch.getMatchDetail(matchNumber)['score2']), "FreePixel", 60, 20, 20, "Blue", 1)
+
+    time.sleep(2)
+    lcddisplay.show_clock()
+    display1.clearscreen("Black")
+    display2.clearscreen("Black")
+    lcddisplay.show_clock()
+
+    if len(matchToWatch.getMatchDetail(matchNumber)['separator']) < 4:
+        display1.print_characters(matchToWatch.getMatchDetail(matchNumber)['separator'], "FreePixel", 60, 0, 0, "White")
+        display2.print_characters(matchToWatch.get_sport_separator(), "FreePixel", 60, 0, 0, "White")
+    else:
+        display1.print_characters(matchToWatch.getMatchDetail(matchNumber)['separator'], "FreePixel", 60, 0, 0, "White")
+
+    time.sleep(2)
+    display1.clearscreen("Black")
+    display2.clearscreen("Black")
+    lcddisplay.show_clock()
+
+    abrev_team1 = matchToWatch.get_cities_abrev(full_team1_name)
+    abrev_team2 = matchToWatch.get_cities_abrev(full_team2_name)
+
+    display1.download_and_display_graphic("http://a.espncdn.com/combiner/i?img=/i/teamlogos/" + matchToWatch.league + "/500/", abrev_team1, "png")
+    display2.download_and_display_graphic("http://a.espncdn.com/combiner/i?img=/i/teamlogos/" + matchToWatch.league + "/500/", abrev_team2, "png")
+    #display2.download_and_display_graphic("http://a.espncdn.com/i/teamlogos/" + matchToWatch.league + "/500/scoreboard/", abrev_team2, "png")
+    time.sleep(4)
+    display1.clearscreen("Black")
+    display2.clearscreen("Black")
 
 def main():
 
@@ -174,10 +202,8 @@ def main():
             matchToWatch = baseball(league=selected_league)
 
     matchToWatch.readHtmlFile()
-
     matchups = matchToWatch.getMatchups()
-
-    matchNumber = choose_matchups(display1, display2, matchups, selection_switch)
+    matchNumber = choose_matchups(display1, display2, matchups, selection_switch) + 1
 
     '''
     while(selected_match == 0):
@@ -228,25 +254,27 @@ def main():
             break
     '''
 
+    # remove after???
     time.sleep(5)
     display1.clearscreen("Black")
     display2.clearscreen("Black")
 
     full_team1_name = matchToWatch.getMatchDetail(matchNumber)['team1']
-    full_team2_name = matchToWatch.getMatchDetail(matchNumber)['team2']
+    #full_team2_name = matchToWatch.getMatchDetail(matchNumber)['team2']
     selected_team_to_watch = full_team1_name
 
-    abrev_team1 = matchToWatch.get_cities_abrev(full_team1_name)
-    abrev_team2 = matchToWatch.get_cities_abrev(full_team2_name)
+    #abrev_team1 = matchToWatch.get_cities_abrev(full_team1_name)
+    #abrev_team2 = matchToWatch.get_cities_abrev(full_team2_name)
 
-    display1.clearscreen("Black")
-    display2.clearscreen("Black")
+    #display1.clearscreen("Black")
+    #display2.clearscreen("Black")
 
-    if len(abrev_team1) == 0 or len(abrev_team2) == 0:
-        print("Fatal Error exiting program")
-        exit()
+    #if len(abrev_team1) == 0 or len(abrev_team2) == 0:
+    #    print("Fatal Error exiting program")
+    #    exit()
 
     while(1):
+        '''
         lcddisplay.show_clock()
         if (matchToWatch.readHtmlFile(selected_team_to_watch) == True):
             for loop in range(1, 4):
@@ -261,7 +289,9 @@ def main():
                 display1.clearscreen("Black")
                 display2.clearscreen("Black")
 
+        '''
 
+        '''
         display1.print_characters(matchToWatch.getMatchDetail(matchNumber)['team1'], "FreePixel", 30, 0, 0, "Red", 1)
         display1.print_characters(str(matchToWatch.getMatchDetail(matchNumber)['score1']), "FreePixel", 60, 20, 20, "Red", 1)
 
@@ -291,6 +321,16 @@ def main():
         time.sleep(4)
         display1.clearscreen("Black")
         display2.clearscreen("Black")
+        '''
+
+        #try:
+        update_current_match(display1, display2, lcddisplay, matchToWatch, selected_team_to_watch, matchNumber)
+
+        #except:
+        #    print("Exceptions here place key board ")
+
+        #finally:
+        #    print("Clean Exit here... disable screens and clock and reset IO's")
 
 if __name__ == "__main__":
     main()

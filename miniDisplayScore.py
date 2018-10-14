@@ -120,10 +120,15 @@ class displayScore:
         sizeX, sizeY = self.background.size
 
         # (1, 0, Translate X, 0, 1, Translate Y)
+        self.background = self.background.resize((64, 64), Image.ANTIALIAS) \
+            .transform(self.device.size, Image.AFFINE, (1, 0, -16, 0, 1, 0), Image.BILINEAR) \
+            .convert(self.device.mode)
+
+        '''
         self.background = self.background.resize((96, 96), Image.ANTIALIAS) \
             .transform(self.device.size, Image.AFFINE, (1, 0, -5, 0, 1, 15), Image.BILINEAR) \
             .convert(self.device.mode)
-
+        '''
         self.device.display(self.background.convert(self.device.mode))
 
     def display_graphic(self, filepath, graphname="color_bars", extension="png"):
@@ -145,78 +150,52 @@ class displayScore:
         number_line_feed = len(headertext.split("\n"))
         line_spaces = ""
         lines_per_screen = int(int(self.resolutionY) / fontsize)
-        print("Lines per screen = " + str(lines_per_screen))
+        #print("Lines per screen = " + str(lines_per_screen))
 
-        print("Number line feed" + str(number_line_feed))
-        print(number_line_feed)
+        #print("Number line feed" + str(number_line_feed))
+        #print(number_line_feed)
 
         for i in range(number_line_feed):
             line_spaces = line_spaces + "\n"
-            print("Is this used line space")
+            #print("Is this used line space")
 
-        print("First Line spaces = " + str(line_spaces))
+        #print("First Line spaces = " + str(line_spaces))
 
-        item_div2 = 0
-        lines_screen1 = 0
+        lines_screen = 1
+
+        string_screen1 = ""
+        string_screen2 = ""
 
         for item in range (len(listItems)):
 
-            item_div2 = item / 2
             if (item == currentSelection):
                 text_color = "Green"
             else:
                 text_color = color
 
-            print(str(item) + ": " + listItems[item])
-
             if use_single == True:
-                display1.print_characters(line_spaces + listItems[item] + "\n", font, fontsize, 0, 0, text_color, 0)
-                line_spaces = line_spaces + "\n"
-                lines_screen1 = lines_screen1 + 1
+                #display1.print_characters(line_spaces + listItems[item] + "\n", font, fontsize, 0, 0, text_color, 0)
+                display1.print_characters(listItems[item], font, fontsize, 0, (lines_screen - 1) * fontsize, text_color, 0)
+                lines_screen = lines_screen + 1
+
             else:
                 if (item % 2 == 0):
-                    print("Modulo 2")
-                    display1.print_characters(line_spaces + listItems[item] + "\n", font,
-                                              fontsize, 0, 0, text_color, 0)
-                    line_spaces = line_spaces + "\n"
-                    lines_screen1 = lines_screen1 + 1
-                else:
-                    print("NOT Modulo 2")
-                    display2.print_characters(line_spaces + listItems[item] + "\n", font,
-                                              fontsize, 0, 0, text_color, 0)
+                    string_screen1 = string_screen1 + listItems[item] #+ "\n"
+                    display1.print_characters(listItems[item], font, fontsize, 0, (lines_screen - 1) * fontsize, text_color, 0)
 
-            # clear screen when lines exceed max line per screen
-            print("Line feeds = " + str(number_line_feed))
-            print("Item no: " + str(item))
-            if (((lines_screen1 + number_line_feed) % lines_per_screen) == 0):
-                time.sleep(5)
+                else:
+                    string_screen2 = string_screen2 + listItems[item] #+ "\n"
+                    display2.print_characters(listItems[item], font, fontsize, 0, (lines_screen - 1) * fontsize, text_color, 0)
+                    lines_screen = lines_screen + 1
+
+            if ((lines_screen % (lines_per_screen + 1)) == 0) or (item == (len(listItems) - 1)):
+                print("Inside if")
+                #display1.print_characters(string_screen1, font, fontsize, 0, 0, text_color, 0)
+                #display2.print_characters(string_screen2, font, fontsize, 0, 0, text_color, 0)
+                string_screen1 = ""
+                string_screen2 = ""
+                lines_screen = 1
+                time.sleep(2)
                 display1.clearscreen("Black")
                 if use_single == False:
                     display2.clearscreen("Black")
-
-
-'''
-    def display(self, image):
-        self._last_image = image.copy()
-        self.device.display(image)
-
-
-    def savepoint(self):
-        """
-        Copies the last displayed image.
-        """
-        if self._last_image:
-            self.savepoints.append(self._last_image)
-            self._last_image = None
-'''
-
-'''class keyboard_input:
-
-    def __init__(self):
-        self.buffer = 'eof'
-        self.is_kbhit = 0
-
-    def key_pressed(self):
-        self.is_kbhit = msvcrt.kbhit()
-        return self.is_kbhit
-'''
