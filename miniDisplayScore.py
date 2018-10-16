@@ -136,9 +136,18 @@ class displayScore:
         self.device.display(self.background.convert(self.device.mode))
 
 
+    def return_array_index(self, input_array):
+        print("i")
+        number_of_screens = len(input_array)
+
+        for i in range (number_of_screens):
+            input_array.index()
+
     # Prints the list on the selected screen
     # and shows the current selection as color green
     def print_list_choice(self, display1, display2, headertext, listItems, currentSelection, font, fontsize, color="White", use_single=True):
+
+        list_array = [[],[]]
 
         if use_single == True:
             display1 = self
@@ -150,6 +159,57 @@ class displayScore:
         number_line_feed = len(headertext.split("\n"))
         line_spaces = ""
         lines_per_screen = int(int(self.resolutionY) / fontsize)
+        if (len(listItems) / lines_per_screen) > int(len(listItems) / lines_per_screen):
+            number_of_screens = int(len(listItems) / lines_per_screen) + 1
+        else:
+            number_of_screens = int(len(listItems) / lines_per_screen)
+
+        #print("Number of screens = " + str(number_of_screens))
+
+        page_index = 0
+        current_page_index = 0
+        current_selection_index = 0
+
+        for item in range(len(listItems)):
+
+            if (item % 8 == 0) and (item != 0):
+                page_index = page_index + 1
+                list_array.append([])
+                list_array.append([])
+
+            if (item % 2 == 0):
+                list_array[0 + 2* page_index].append(listItems[item])
+                if item == currentSelection:
+                    current_selection_index = len(list_array[0 + 2* page_index]) - 1
+                    current_page_index = 2 * page_index
+            else:
+                list_array[1 + 2* page_index].append(listItems[item])
+                if item == currentSelection:
+                    current_selection_index = len(list_array[1 + 2* page_index]) - 1
+                    current_page_index = 1 + 2 * page_index
+
+        if (current_page_index % 2 == 0):
+            page_to_display = current_page_index
+        else:
+            page_to_display = current_page_index - 1
+
+        for i in range (len(list_array[page_to_display])):
+
+            if (i == current_selection_index):
+                print(list_array[current_page_index][current_selection_index])
+                if (current_page_index % 2 == 0):
+                    print("Screen 1 here --> Green here " + list_array[0][i])
+                    print("Screen 2 here --> Normal " + list_array[1][i])
+                else:
+                    print("Screen 1 here --> Normal " + list_array[0][i])
+                    print("Screen 2 here --> Green here " + list_array[1][i])
+            else:
+                print("To screen 1: " + list_array[page_to_display][i])
+                if use_single == False:
+                    print("To screen 2: " + list_array[page_to_display + 1][i])
+
+        print("----")
+
         #print("Lines per screen = " + str(lines_per_screen))
 
         #print("Number line feed" + str(number_line_feed))
@@ -165,6 +225,7 @@ class displayScore:
 
         string_screen1 = ""
         string_screen2 = ""
+
 
         for item in range (len(listItems)):
 

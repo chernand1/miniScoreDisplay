@@ -1,35 +1,38 @@
-from fetchScores import football
-from miniDisplayScore import displayScore
-import time
-from system_tools import get_char
-from multi_axis_switch import multi_axis_switch
 
-mySwitch = multi_axis_switch()
+array_index = [[],[]]
 
-print("Current Switch States = " + str(mySwitch.switch_state()))
-mySwitch.init_event()
+print("Dimensions = " + str(len(array_index)))
+print("Dimensions = " + str(len(array_index[0])))
+print("Dimensions = " + str(len(array_index[1])))
+print("")
+array_index[0].append("Allo 1")
+array_index[0].append("Allo 2")
 
-while(1):
-    time.sleep(0.5)
-    if (mySwitch.return_sw_up() == 0):
-        print("Up Switch pressed")
-    if (mySwitch.return_sw_down() == 0):
-        print("Down Switch pressed")
-    if (mySwitch.return_sw_push() == 0):
-        print("Switch pushed")
+array_index[1].append("Allo 3")
+array_index[1].append("Allo 4")
+print("Dimensions = " + str(len(array_index)))
+print("Dimensions = " + str(len(array_index[0])))
+print("Dimensions = " + str(len(array_index[1])))
+print("")
+
+array_index.append([])
+array_index.append([])
+array_index[2].append("Allo 5")
+array_index[3].append("Allo 6")
+print("Dimensions = " + str(len(array_index)))
+print("Dimensions = " + str(len(array_index[0])))
+print("Dimensions = " + str(len(array_index[1])))
+
+myIndex = array_index[1].index("Allo 3")
+print("Dimensions last = " + str(len(array_index)))
+
+print("Index of Allo 1 = " + str(myIndex))
 
 
-#matchToWatch = football(league='nfl')
-#matchToWatch.readHtmlFileEspn()
-'''
-mydisplayscore = displayScore()
-mydisplayscore2 = displayScore()
-mydisplayscore.createDevice(portNo='0', bgcolor="black", reset_pin='25', rotate_screen=180)
-mydisplayscore2.createDevice(portNo='1', bgcolor="black", reset_pin='22', rotate_screen=180)
-mydisplayscore.download_and_display_graphic("http://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/", "chi", "png")
-mydisplayscore.download_and_display_graphic("http://a.espncdn.com/combiner/i?img=/i/teamlogos/nhl/500/", "chi", "png")
-mydisplayscore2.download_and_display_graphic("http://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/", "sea", "png")
-'''
+
+
+
+
 
 
 
