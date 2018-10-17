@@ -62,6 +62,18 @@ class displayScore:
 
         self.device.display(self.background.convert(self.device.mode))
 
+    def get_x_y_text(self, text, font, fontsize):
+
+        makefont = ImageFont.truetype(self.fontsdir + font + ".ttf", fontsize)
+
+        with canvas(self.device) as draw:
+            w, h = draw.textsize(text, makefont)
+
+        x = int((int(self.resolutionX) - w)/2)
+        y = int((int(self.resolutionY) - h)/2)
+
+        return x, y
+
     def auto_size_text(self, text, font, fontsize):
 
         makefont = ImageFont.truetype(self.fontsdir + font + ".ttf", fontsize)
@@ -177,7 +189,7 @@ class displayScore:
                 list_array.append([])
                 list_array.append([])
 
-            if (item % 2 == 0):
+            if ((item % 2 == 0) or (use_single == True)):
                 list_array[0 + 2* page_index].append(listItems[item])
                 if item == currentSelection:
                     current_selection_index = len(list_array[0 + 2* page_index]) - 1
@@ -198,65 +210,22 @@ class displayScore:
             if (i == current_selection_index):
                 print(list_array[current_page_index][current_selection_index])
                 if (current_page_index % 2 == 0):
-                    print("Screen 1 here --> Green here " + list_array[0][i])
-                    print("Screen 2 here --> Normal " + list_array[1][i])
+                    display1.print_characters(list_array[page_to_display][i], font, fontsize, 0,
+                                              (i) * fontsize, "green", 0)
+                    if (use_single == False) and (i < len(list_array[page_to_display + 1])):
+                        display2.print_characters(list_array[page_to_display + 1][i], font, fontsize, 0,
+                                                  (i) * fontsize, text_color, 0)
                 else:
-                    print("Screen 1 here --> Normal " + list_array[0][i])
-                    print("Screen 2 here --> Green here " + list_array[1][i])
+                    display1.print_characters(list_array[page_to_display][i], font, fontsize, 0,
+                                              (i) * fontsize, text_color, 0)
+                    if (use_single == False) and (i < len(list_array[page_to_display + 1])):
+                        display2.print_characters(list_array[page_to_display + 1][i], font, fontsize, 0,
+                                                  (i) * fontsize, "green", 0)
             else:
                 print("To screen 1: " + list_array[page_to_display][i])
-                if use_single == False:
+                display1.print_characters(list_array[page_to_display][i], font, fontsize, 0,
+                                          (i) * fontsize, text_color, 0)
+                if (use_single == False) and (i < len(list_array[page_to_display + 1])):
                     print("To screen 2: " + list_array[page_to_display + 1][i])
-
-        print("----")
-
-        #print("Lines per screen = " + str(lines_per_screen))
-
-        #print("Number line feed" + str(number_line_feed))
-        #print(number_line_feed)
-
-        for i in range(number_line_feed):
-            line_spaces = line_spaces + "\n"
-            #print("Is this used line space")
-
-        #print("First Line spaces = " + str(line_spaces))
-
-        lines_screen = 1
-
-        string_screen1 = ""
-        string_screen2 = ""
-
-
-        for item in range (len(listItems)):
-
-            if (item == currentSelection):
-                text_color = "Green"
-            else:
-                text_color = color
-
-            if use_single == True:
-                #display1.print_characters(line_spaces + listItems[item] + "\n", font, fontsize, 0, 0, text_color, 0)
-                display1.print_characters(listItems[item], font, fontsize, 0, (lines_screen - 1) * fontsize, text_color, 0)
-                lines_screen = lines_screen + 1
-
-            else:
-                if (item % 2 == 0):
-                    string_screen1 = string_screen1 + listItems[item] #+ "\n"
-                    display1.print_characters(listItems[item], font, fontsize, 0, (lines_screen - 1) * fontsize, text_color, 0)
-
-                else:
-                    string_screen2 = string_screen2 + listItems[item] #+ "\n"
-                    display2.print_characters(listItems[item], font, fontsize, 0, (lines_screen - 1) * fontsize, text_color, 0)
-                    lines_screen = lines_screen + 1
-
-            if ((lines_screen % (lines_per_screen + 1)) == 0) or (item == (len(listItems) - 1)):
-                print("Inside if")
-                #display1.print_characters(string_screen1, font, fontsize, 0, 0, text_color, 0)
-                #display2.print_characters(string_screen2, font, fontsize, 0, 0, text_color, 0)
-                string_screen1 = ""
-                string_screen2 = ""
-                lines_screen = 1
-                time.sleep(2)
-                display1.clearscreen("Black")
-                if use_single == False:
-                    display2.clearscreen("Black")
+                    display2.print_characters(list_array[page_to_display + 1][i], font, fontsize, 0,
+                                              (i) * fontsize, text_color, 0)

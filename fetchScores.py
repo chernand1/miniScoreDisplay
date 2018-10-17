@@ -27,7 +27,7 @@ class sportsClass:
         self.league = league
         self.teamList = ['','']
         self.matchups = {'match1':{}}
-        self.available_leagues = ['nfl', 'nhl', 'mlb']
+        self.available_leagues = ['nfl', 'nhl', 'mlb', 'nba']
 
     def get_leagues(self):
         return self.available_leagues
@@ -232,7 +232,10 @@ class sportsClass:
         print("Len of matchups 2 = " + str(len(self.matchups)))
         for match_no in range (1, len(self.matchups) + 1):
             new_key = "match" + str(match_no)
-            matchups.append(self.cities[(self.matchups[new_key]['team1'])] + " @ " + self.cities[str(self.matchups[new_key]['team2'])])
+            try:
+                matchups.append(self.cities[(self.matchups[new_key]['team1'])] + " @ " + self.cities[str(self.matchups[new_key]['team2'])])
+            except:
+                print("Unable to find city....")
 
         print(matchups)
 
@@ -308,6 +311,19 @@ class baseball(sportsClass):
             self.teamList = ['ATL', 'GBY', 'CHI']
             self.matchups = {'match1':{}}
 
+class basketball(sportsClass):
+    def __init__(self, league):
+        sportsClass.__init__(self, sport='basketball', league='nba')
+        self.FullDescription['url'] = 'http://www.espn.com/' + self.league + '/bottomline/scores'
+        self.FullDescription['time'] = True
+        self.FullDescription['separator'] = 'Quarters'
+        self.FullDescription['timeSeparator'] = 0
+        self.FullDescription['sport_separator'] = 'QTR'
+
+        if self.league == 'nba':
+            self.FullDescription['league'] = 'nba'
+            self.teamList = ['ATL', 'LAC', 'CHI']
+            self.matchups = {'match1': {}}
 
 '''class soccer(sportsClass):
 
