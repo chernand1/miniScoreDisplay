@@ -2,12 +2,10 @@ from miniDisplayScore import displayScore
 from tm1637 import TM1637
 import time
 from fetchScores import football, hockey, baseball, basketball
-from system_tools import get_char
 from multi_axis_switch import multi_axis_switch
 
 def initializeBoard():
 
-    #myKey = get_char()
     lcddisplay = TM1637(4, 21)
     lcddisplay.show_clock()
 
@@ -50,12 +48,14 @@ def chooseLeague(display1, display2, selection_switch):
     current_selection = 0
 
     display1.print_characters("Using \njoystick\nChoose\nleague", "FreePixel", 16, 0, 0, "White", 0)
+    display2.print_list_choice(display1, display2, display_line1, tmp_leagues.available_leagues, current_selection,
+                               "FreePixel", 16, "White", True)
 
     pushval = 0
     selected_league = 'nfl'
 
     while(pushval == 0):
-        display2.print_list_choice(display1, display2, display_line1, tmp_leagues.available_leagues, current_selection, "FreePixel", 16, "White", True)
+        # display2.print_list_choice(display1, display2, display_line1, tmp_leagues.available_leagues, current_selection, "FreePixel", 16, "White", True)
         values = selection_switch.return_switchstate()
         downval = values[4]
         upval = values[3]
@@ -66,12 +66,14 @@ def chooseLeague(display1, display2, selection_switch):
             current_selection = 0
         if current_selection == len(tmp_leagues.available_leagues):
             current_selection = len(tmp_leagues.available_leagues) - 1
-            print("Maximum reached curr sel = " + str(current_selection))
 
-        print(str(current_selection))
-
-        #display1.clearscreen("Black")
         selected_league = tmp_leagues.available_leagues[current_selection]
+
+        # Refresh only if selection has changed
+        if ((upval != 0) or (downval != 0)):
+            display2.clearscreen("Black")
+            display2.print_list_choice(display1, display2, display_line1, tmp_leagues.available_leagues, current_selection, "FreePixel", 16, "White", True)
+            time.sleep(0.5)
 
     display1.clearscreen("Black")
     display1.print_characters(selected_league + " Selected", "FreePixel", 16, 0, 0, "White", 0)
@@ -95,10 +97,6 @@ def choose_matchups(display1, display2, matchups, selection_switch):
                                False)
 
     while (pushval == 0):
-
-        print("Current selection: " + str(current_selection))
-
-        #time.sleep(0.5)
         values = selection_switch.return_switchstate()
         downval = values[4]
         upval = values[3]
@@ -179,10 +177,40 @@ def update_current_match(display1, display2, lcddisplay, matchToWatch, selected_
 
     display1.download_and_display_graphic("http://a.espncdn.com/combiner/i?img=/i/teamlogos/" + matchToWatch.league + "/500/", abrev_team1, "png")
     display2.download_and_display_graphic("http://a.espncdn.com/combiner/i?img=/i/teamlogos/" + matchToWatch.league + "/500/", abrev_team2, "png")
-    #display2.download_and_display_graphic("http://a.espncdn.com/i/teamlogos/" + matchToWatch.league + "/500/scoreboard/", abrev_team2, "png")
     time.sleep(4)
     display1.clearscreen("Black")
     display2.clearscreen("Black")
+
+
+def update_other_matchs(display1, display2, lcddisplay, matchToWatch, matchups, matchNumber):
+
+    lcddisplay.show_clock()
+
+    display1.clearscreen("Black")
+    display2.clearscreen("Black")
+
+    display1.print_characters("Scores\nAround", "FreePixel", 30, 0, 0, "White", 0)
+    display2.print_characters("The\nLeague", "FreePixel", 30, 0, 0, "White", 0)
+
+    time.sleep(2)
+
+    display1.clearscreen("Black")
+    display2.clearscreen("Black")
+
+    for i in range(len(matchups)):
+        if i != (matchNumber - 1):
+            display1.print_characters(matchToWatch.getMatchDetail(i + 1)['team1'], "FreePixel", 30, 0, 0, "Red", 1)
+            x, y = display1.get_x_y_text(str(matchToWatch.getMatchDetail(i + 1)['score1']), "FreePixel", 60)
+            display1.print_characters(str(matchToWatch.getMatchDetail(i + 1)['score1']), "FreePixel", 60, x, 20, "Red", 1)
+
+            display2.print_characters(matchToWatch.getMatchDetail(i + 1)['team2'], "FreePixel", 30, 0, 0, "Blue", 1)
+            x, y = display2.get_x_y_text(str(matchToWatch.getMatchDetail(i + 1)['score2']), "FreePixel", 60)
+            display2.print_characters(str(matchToWatch.getMatchDetail(i + 1)['score2']), "FreePixel", 60, x, 20, "Blue", 1)
+
+            time.sleep(2)
+            display1.clearscreen("Black")
+            display2.clearscreen("Black")
+
 
 def main():
 
@@ -195,111 +223,58 @@ def main():
     while error == 0:
         error = checkInternetAccess(display1, display2)
 
-    selected_league = chooseLeague( display1, display2, selection_switch)
+    while(1):
+        selected_league = chooseLeague( display1, display2, selection_switch)
 
-    display1.clearscreen("Black")
-    display2.clearscreen("Black")
-
-    if selected_league.find('nfl') != -1:
-        matchToWatch = football(league=selected_league)
-    else:
-        if selected_league.find('nhl') != -1:
-            matchToWatch = hockey(league=selected_league)
-        else:
-            if selected_league.find('mlb') != -1:
-                matchToWatch = baseball(league=selected_league)
-            else:
-                matchToWatch = basketball(league=selected_league)
-
-    matchToWatch.readHtmlFile()
-    matchups = matchToWatch.getMatchups()
-    matchNumber = choose_matchups(display1, display2, matchups, selection_switch) + 1
-
-    '''
-    while(selected_match == 0):
-        string_to_print_screen1 = ''
-        string_to_print_screen2 = ''
-        #if nb_loops > 0:
-            #time.sleep(5)
         display1.clearscreen("Black")
         display2.clearscreen("Black")
-        for i in range(0, nb_of_matchups):
-            print("i = " + str(i))
-            if (i % 8 == 0):
-                string_to_print_screen1 = ''
-                string_to_print_screen2 = ''
-                if (i !=0 ):
-                    time.sleep(5)
-                display1.clearscreen("Black")
-                display2.clearscreen("Black")
 
-            if (i % 2 == 0):
-                string_to_print_screen1 = string_to_print_screen1 + str(i+1) + ":" + matchups[i] + "\n"
-                print(str(i) + ":" + matchups[i])
+        if selected_league.find('nfl') != -1:
+            matchToWatch = football(league=selected_league)
+        else:
+            if selected_league.find('nhl') != -1:
+                matchToWatch = hockey(league=selected_league)
             else:
-                string_to_print_screen2 = string_to_print_screen2 + str(i+1) + ":" + matchups[i] + "\n"
-                print(str(i) + ":" + matchups[i])
+                if selected_league.find('mlb') != -1:
+                    matchToWatch = baseball(league=selected_league)
+                else:
+                    matchToWatch = basketball(league=selected_league)
 
-            print("Screen 1 = " + string_to_print_screen1)
-            print("Screen 2 = " + string_to_print_screen2)
-            display1.print_characters(string_to_print_screen1, "FreePixel", 16, 0, 0, "White", 0)
-            display2.print_characters(string_to_print_screen2, "FreePixel", 16, 0, 0, "White", 0)
+        matchToWatch.readHtmlFile()
+        matchups = matchToWatch.getMatchups()
+        matchNumber = choose_matchups(display1, display2, matchups, selection_switch) + 1
 
+        # remove after???
+        time.sleep(5)
+        display1.clearscreen("Black")
+        display2.clearscreen("Black")
 
-        nb_loops = nb_loops + 1
-        print("Number of loops = " + str(nb_loops))
+        full_team1_name = matchToWatch.getMatchDetail(matchNumber)['team1']
+        selected_team_to_watch = full_team1_name
 
-        if string_to_print_screen1 != '':
-            time.sleep(5)
+        pushval = 0
 
-        keyPressed = myKey.get_string()
-        if keyPressed > 0 and keyPressed <= nb_of_matchups:
-            matchNumber = keyPressed
-            print("Selected Match Number = " + str(matchNumber))
-            break
+        # Press joystick to restart league and match selection
+        while(pushval == 0):
 
-        # Time out 10 loops. Esxit While
-        if nb_loops == 10:
-            matchNumber = 1
-            break
-    '''
+            #try:
+            # Loop 10 times the match being watched
+            for nb_loops in range(10):
+                update_current_match(display1, display2, lcddisplay, matchToWatch, selected_team_to_watch, matchNumber)
 
-    # remove after???
-    time.sleep(5)
-    display1.clearscreen("Black")
-    display2.clearscreen("Black")
+            # Show scores in rest of the league... No graphics
+            update_other_matchs(display1, display2, lcddisplay, matchToWatch, matchups, matchNumber)
 
-    full_team1_name = matchToWatch.getMatchDetail(matchNumber)['team1']
-    #full_team2_name = matchToWatch.getMatchDetail(matchNumber)['team2']
-    selected_team_to_watch = full_team1_name
+            values = selection_switch.return_switchstate()
+            downval = values[4]
+            upval = values[3]
+            pushval = values[0]
 
-    #abrev_team1 = matchToWatch.get_cities_abrev(full_team1_name)
-    #abrev_team2 = matchToWatch.get_cities_abrev(full_team2_name)
+            #except:
+            #    print("Exceptions here place key board ")
 
-    #display1.clearscreen("Black")
-    #display2.clearscreen("Black")
-
-    #if len(abrev_team1) == 0 or len(abrev_team2) == 0:
-    #    print("Fatal Error exiting program")
-    #    exit()
-
-    pushval = 0
-
-    while(pushval == 0):
-
-        #try:
-        update_current_match(display1, display2, lcddisplay, matchToWatch, selected_team_to_watch, matchNumber)
-
-        values = selection_switch.return_switchstate()
-        downval = values[4]
-        upval = values[3]
-        pushval = values[0]
-
-        #except:
-        #    print("Exceptions here place key board ")
-
-        #finally:
-        #    print("Clean Exit here... disable screens and clock and reset IO's")
+            #finally:
+            #    print("Clean Exit here... disable screens and clock and reset IO's")
 
 if __name__ == "__main__":
     main()
