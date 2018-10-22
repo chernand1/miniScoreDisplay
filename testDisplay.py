@@ -78,6 +78,9 @@ def chooseLeague(display1, display2, selection_switch):
     display1.clearscreen("Black")
     display1.print_characters(selected_league + " Selected", "FreePixel", 16, 0, 0, "White", 0)
     time.sleep(2)
+    # reset push contact state in case of bouncing
+    selection_switch.push_contact_state = 0
+
     return selected_league
 
 
@@ -115,6 +118,13 @@ def choose_matchups(display1, display2, matchups, selection_switch):
             display2.clearscreen("Black")
             display1.print_list_choice(display1, display2, "", screens_array, current_selection, "FreePixel", 16, "White", False)
             time.sleep(0.5)
+
+    display1.clearscreen("Black")
+    display2.clearscreen("Black")
+    display1.print_characters(screens_array[current_selection] + " \nSelected", "FreePixel", 16, 0, 0, "White", 0)
+    time.sleep(2)
+    # reset push contact state in case of bouncing
+    selection_switch.push_contact_state = 0
 
     return current_selection
 
@@ -219,6 +229,12 @@ def main():
 
     display1, display2, lcddisplay = initializeBoard()
 
+    display1.print_characters("Mini\nDisplay", "FreePixel", 30, 0, 0, "white", 1)
+    display2.print_characters("Score\nBoard", "FreePixel", 30, 0, 0, "white", 1)
+    time.sleep(5)
+    display1.clearscreen("Black")
+    display2.clearscreen("Black")
+
     error = 0
     while error == 0:
         error = checkInternetAccess(display1, display2)
@@ -244,7 +260,6 @@ def main():
         matchups = matchToWatch.getMatchups()
         matchNumber = choose_matchups(display1, display2, matchups, selection_switch) + 1
 
-        # remove after???
         time.sleep(5)
         display1.clearscreen("Black")
         display2.clearscreen("Black")
@@ -266,10 +281,8 @@ def main():
             update_other_matchs(display1, display2, lcddisplay, matchToWatch, matchups, matchNumber)
 
             values = selection_switch.return_switchstate()
-            downval = values[4]
-            upval = values[3]
             pushval = values[0]
-
+            print("Push val = " + str(pushval))
             #except:
             #    print("Exceptions here place key board ")
 
